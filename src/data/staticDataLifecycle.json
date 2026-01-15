@@ -1,0 +1,578 @@
+{
+  "nodes": [
+    {
+      "id": "start",
+      "type": "event",
+      "label": "Client Onboarding Request",
+      "icon": "play",
+      "details": {
+        "description": "New corporate client onboarding request received from Sales or Relationship Manager",
+        "requirements": ["Client legal name", "Contact information", "Business justification"],
+        "effort": "N/A - Trigger event",
+        "owner": "Relationship Manager"
+      }
+    },
+    {
+      "id": "collect",
+      "type": "manual",
+      "label": "Collect Client Data",
+      "icon": "user",
+      "details": {
+        "description": "Gather all required static data from the client including legal entity information, tax IDs, banking details, and authorized signatories",
+        "requirements": [
+          "Certificate of Incorporation",
+          "Tax ID / EIN documentation",
+          "Authorized signatory list",
+          "Banking details for payments",
+          "Legal Entity Identifier (LEI)"
+        ],
+        "effort": "2-5 business days",
+        "owner": "Client Onboarding Team"
+      },
+      "subWorkflow": "dataCollection"
+    },
+    {
+      "id": "kyc",
+      "type": "manual",
+      "label": "KYC/AML Verification",
+      "icon": "shield",
+      "details": {
+        "description": "Perform Know Your Customer and Anti-Money Laundering checks against regulatory databases and sanctions lists",
+        "requirements": [
+          "Ultimate Beneficial Owner (UBO) identification",
+          "Sanctions screening results",
+          "PEP (Politically Exposed Person) check",
+          "Adverse media screening"
+        ],
+        "effort": "1-3 business days",
+        "owner": "Compliance Team"
+      },
+      "subWorkflow": "kycProcess"
+    },
+    {
+      "id": "kyc-decision",
+      "type": "gateway",
+      "label": "KYC Approved?",
+      "icon": "gitBranch",
+      "details": {
+        "description": "Decision point based on KYC/AML verification results",
+        "requirements": ["Completed KYC review", "Risk assessment score"],
+        "effort": "Immediate",
+        "owner": "Compliance Team"
+      }
+    },
+    {
+      "id": "kyc-reject",
+      "type": "event",
+      "label": "Reject & Notify",
+      "icon": "xCircle",
+      "details": {
+        "description": "Client fails KYC/AML checks - notify relationship manager and document rejection reason",
+        "requirements": ["Rejection documentation", "Regulatory filing if required"],
+        "effort": "1 business day",
+        "owner": "Compliance Team"
+      }
+    },
+    {
+      "id": "quality",
+      "type": "automated",
+      "label": "Data Quality Check",
+      "icon": "cog",
+      "details": {
+        "description": "Automated validation of data completeness, format compliance, and cross-reference verification against external sources",
+        "requirements": [
+          "All mandatory fields populated",
+          "Valid format for tax IDs, LEI",
+          "Address verification via external service",
+          "Duplicate detection check"
+        ],
+        "effort": "Automated - 5 minutes",
+        "owner": "System"
+      }
+    },
+    {
+      "id": "quality-decision",
+      "type": "gateway",
+      "label": "Quality Pass?",
+      "icon": "gitBranch",
+      "details": {
+        "description": "Automated decision based on data quality validation results",
+        "requirements": ["Quality score threshold met", "No critical errors"],
+        "effort": "Immediate",
+        "owner": "System"
+      }
+    },
+    {
+      "id": "quality-fix",
+      "type": "manual",
+      "label": "Remediate Data Issues",
+      "icon": "pencil",
+      "details": {
+        "description": "Manual correction of data quality issues identified during automated validation",
+        "requirements": ["Error report from quality check", "Source documents for correction"],
+        "effort": "1-2 business days",
+        "owner": "Data Steward"
+      }
+    },
+    {
+      "id": "approve",
+      "type": "manual",
+      "label": "Manager Approval",
+      "icon": "checkCircle",
+      "details": {
+        "description": "Final review and approval by Operations Manager before committing to master data",
+        "requirements": [
+          "All validations passed",
+          "Complete documentation package",
+          "Risk assessment reviewed"
+        ],
+        "effort": "1 business day",
+        "owner": "Operations Manager"
+      }
+    },
+    {
+      "id": "master",
+      "type": "automated",
+      "label": "Create Master Record",
+      "icon": "database",
+      "details": {
+        "description": "Automated creation of golden record in Master Data Management (MDM) system with full audit trail",
+        "requirements": [
+          "Unique client identifier generation",
+          "Data lineage tracking",
+          "Version control initialization"
+        ],
+        "effort": "Automated - 2 minutes",
+        "owner": "System"
+      }
+    },
+    {
+      "id": "distribute",
+      "type": "automated",
+      "label": "Distribute to Systems",
+      "icon": "share2",
+      "details": {
+        "description": "Automated distribution of client data to downstream consuming systems (CRM, Trading, Billing, etc.)",
+        "requirements": [
+          "System integration mappings",
+          "Data transformation rules",
+          "Delivery confirmation from each system"
+        ],
+        "effort": "Automated - 15 minutes",
+        "owner": "System"
+      },
+      "subWorkflow": "distribution"
+    },
+    {
+      "id": "notify",
+      "type": "automated",
+      "label": "Notify Stakeholders",
+      "icon": "mail",
+      "details": {
+        "description": "Send automated notifications to relationship manager, client team, and relevant business units",
+        "requirements": ["Stakeholder distribution list", "Notification templates"],
+        "effort": "Automated - immediate",
+        "owner": "System"
+      }
+    },
+    {
+      "id": "active",
+      "type": "event",
+      "label": "Client Active",
+      "icon": "checkCircle",
+      "details": {
+        "description": "Client static data is now active and available for business operations",
+        "requirements": [],
+        "effort": "N/A - Status milestone",
+        "owner": "N/A"
+      }
+    },
+    {
+      "id": "maintenance",
+      "type": "manual",
+      "label": "Ongoing Maintenance",
+      "icon": "refreshCw",
+      "details": {
+        "description": "Periodic review and updates to client static data based on client requests or regulatory requirements",
+        "requirements": [
+          "Change request documentation",
+          "Updated source documents",
+          "Approval workflow for material changes"
+        ],
+        "effort": "Ongoing - as needed",
+        "owner": "Data Steward"
+      },
+      "subWorkflow": "maintenance"
+    },
+    {
+      "id": "review",
+      "type": "automated",
+      "label": "Annual Review Trigger",
+      "icon": "calendar",
+      "details": {
+        "description": "Automated annual review trigger to ensure client data remains current and compliant",
+        "requirements": ["Review schedule configuration", "Notification rules"],
+        "effort": "Automated trigger",
+        "owner": "System"
+      }
+    },
+    {
+      "id": "offboard-decision",
+      "type": "gateway",
+      "label": "Continue Relationship?",
+      "icon": "gitBranch",
+      "details": {
+        "description": "Decision point during annual review - continue client relationship or initiate offboarding",
+        "requirements": ["Relationship status review", "Business justification"],
+        "effort": "Decision point",
+        "owner": "Relationship Manager"
+      }
+    },
+    {
+      "id": "archive",
+      "type": "automated",
+      "label": "Archive & Retain",
+      "icon": "archive",
+      "details": {
+        "description": "Archive client data per retention policy - typically 7 years for regulatory compliance",
+        "requirements": [
+          "Retention policy compliance",
+          "Audit trail preservation",
+          "Downstream system cleanup"
+        ],
+        "effort": "Automated - 1 hour",
+        "owner": "System"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "start", "target": "collect" },
+    { "id": "e2", "source": "collect", "target": "kyc" },
+    { "id": "e3", "source": "kyc", "target": "kyc-decision" },
+    { "id": "e4", "source": "kyc-decision", "target": "kyc-reject", "label": "No" },
+    { "id": "e5", "source": "kyc-decision", "target": "quality", "label": "Yes" },
+    { "id": "e6", "source": "quality", "target": "quality-decision" },
+    { "id": "e7", "source": "quality-decision", "target": "quality-fix", "label": "No" },
+    { "id": "e8", "source": "quality-fix", "target": "quality", "animated": true },
+    { "id": "e9", "source": "quality-decision", "target": "approve", "label": "Yes" },
+    { "id": "e10", "source": "approve", "target": "master" },
+    { "id": "e11", "source": "master", "target": "distribute" },
+    { "id": "e12", "source": "distribute", "target": "notify" },
+    { "id": "e13", "source": "notify", "target": "active" },
+    { "id": "e14", "source": "active", "target": "maintenance" },
+    { "id": "e15", "source": "maintenance", "target": "review" },
+    { "id": "e16", "source": "review", "target": "offboard-decision" },
+    { "id": "e17", "source": "offboard-decision", "target": "maintenance", "label": "Yes" },
+    { "id": "e18", "source": "offboard-decision", "target": "archive", "label": "No" }
+  ],
+  "subWorkflows": {
+    "dataCollection": {
+      "nodes": [
+        {
+          "id": "dc-start",
+          "type": "event",
+          "label": "Start Collection",
+          "icon": "play",
+          "details": {
+            "description": "Initiate data collection process",
+            "requirements": [],
+            "effort": "N/A",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "dc-send",
+          "type": "automated",
+          "label": "Send Data Request",
+          "icon": "mail",
+          "details": {
+            "description": "Automated email with data collection form and document upload link",
+            "requirements": ["Client email address", "Form template"],
+            "effort": "Automated",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "dc-receive",
+          "type": "manual",
+          "label": "Receive Documents",
+          "icon": "fileText",
+          "details": {
+            "description": "Client uploads required documents via secure portal",
+            "requirements": ["Document checklist completion"],
+            "effort": "Client dependent",
+            "owner": "Client"
+          }
+        },
+        {
+          "id": "dc-verify",
+          "type": "manual",
+          "label": "Verify Completeness",
+          "icon": "clipboardCheck",
+          "details": {
+            "description": "Review submitted documents for completeness",
+            "requirements": ["All mandatory documents received"],
+            "effort": "2-4 hours",
+            "owner": "Onboarding Analyst"
+          }
+        },
+        {
+          "id": "dc-end",
+          "type": "event",
+          "label": "Collection Complete",
+          "icon": "checkCircle",
+          "details": {
+            "description": "All required data and documents collected",
+            "requirements": [],
+            "effort": "N/A",
+            "owner": "N/A"
+          }
+        }
+      ],
+      "edges": [
+        { "id": "dc-e1", "source": "dc-start", "target": "dc-send" },
+        { "id": "dc-e2", "source": "dc-send", "target": "dc-receive" },
+        { "id": "dc-e3", "source": "dc-receive", "target": "dc-verify" },
+        { "id": "dc-e4", "source": "dc-verify", "target": "dc-end" }
+      ]
+    },
+    "kycProcess": {
+      "nodes": [
+        {
+          "id": "kyc-start",
+          "type": "event",
+          "label": "Start KYC",
+          "icon": "play",
+          "details": {
+            "description": "Initiate KYC verification process",
+            "requirements": ["Client identification data"],
+            "effort": "N/A",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "kyc-sanctions",
+          "type": "automated",
+          "label": "Sanctions Screening",
+          "icon": "shield",
+          "details": {
+            "description": "Automated screening against OFAC, EU, UN sanctions lists",
+            "requirements": ["Client name", "Country of incorporation", "UBO names"],
+            "effort": "Automated - 2 minutes",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "kyc-pep",
+          "type": "automated",
+          "label": "PEP Check",
+          "icon": "userCheck",
+          "details": {
+            "description": "Check UBOs against Politically Exposed Persons databases",
+            "requirements": ["UBO identification"],
+            "effort": "Automated - 2 minutes",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "kyc-adverse",
+          "type": "automated",
+          "label": "Adverse Media",
+          "icon": "alertTriangle",
+          "details": {
+            "description": "Screen for negative news articles and regulatory actions",
+            "requirements": ["Entity names for screening"],
+            "effort": "Automated - 5 minutes",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "kyc-review",
+          "type": "manual",
+          "label": "Analyst Review",
+          "icon": "user",
+          "details": {
+            "description": "Compliance analyst reviews all screening results and makes risk determination",
+            "requirements": ["All automated screening results", "Risk scoring matrix"],
+            "effort": "2-4 hours",
+            "owner": "Compliance Analyst"
+          }
+        },
+        {
+          "id": "kyc-end",
+          "type": "event",
+          "label": "KYC Complete",
+          "icon": "checkCircle",
+          "details": {
+            "description": "KYC review completed with documented decision",
+            "requirements": [],
+            "effort": "N/A",
+            "owner": "N/A"
+          }
+        }
+      ],
+      "edges": [
+        { "id": "kyc-e1", "source": "kyc-start", "target": "kyc-sanctions" },
+        { "id": "kyc-e2", "source": "kyc-start", "target": "kyc-pep" },
+        { "id": "kyc-e3", "source": "kyc-sanctions", "target": "kyc-adverse" },
+        { "id": "kyc-e4", "source": "kyc-pep", "target": "kyc-adverse" },
+        { "id": "kyc-e5", "source": "kyc-adverse", "target": "kyc-review" },
+        { "id": "kyc-e6", "source": "kyc-review", "target": "kyc-end" }
+      ]
+    },
+    "distribution": {
+      "nodes": [
+        {
+          "id": "dist-start",
+          "type": "event",
+          "label": "Start Distribution",
+          "icon": "play",
+          "details": {
+            "description": "Initiate data distribution to downstream systems",
+            "requirements": ["Approved master record"],
+            "effort": "N/A",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "dist-crm",
+          "type": "automated",
+          "label": "Update CRM",
+          "icon": "users",
+          "details": {
+            "description": "Push client data to CRM system",
+            "requirements": ["CRM API access", "Field mapping"],
+            "effort": "Automated - 1 minute",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "dist-trading",
+          "type": "automated",
+          "label": "Update Trading",
+          "icon": "trendingUp",
+          "details": {
+            "description": "Push client data to Trading platform",
+            "requirements": ["Trading system API", "Account setup rules"],
+            "effort": "Automated - 2 minutes",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "dist-billing",
+          "type": "automated",
+          "label": "Update Billing",
+          "icon": "dollarSign",
+          "details": {
+            "description": "Push client data to Billing/Invoicing system",
+            "requirements": ["Billing API", "Fee schedule assignment"],
+            "effort": "Automated - 1 minute",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "dist-confirm",
+          "type": "automated",
+          "label": "Confirm All Updates",
+          "icon": "checkSquare",
+          "details": {
+            "description": "Verify successful distribution to all systems",
+            "requirements": ["Confirmation from each system"],
+            "effort": "Automated - 1 minute",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "dist-end",
+          "type": "event",
+          "label": "Distribution Complete",
+          "icon": "checkCircle",
+          "details": {
+            "description": "All downstream systems updated successfully",
+            "requirements": [],
+            "effort": "N/A",
+            "owner": "N/A"
+          }
+        }
+      ],
+      "edges": [
+        { "id": "dist-e1", "source": "dist-start", "target": "dist-crm" },
+        { "id": "dist-e2", "source": "dist-start", "target": "dist-trading" },
+        { "id": "dist-e3", "source": "dist-crm", "target": "dist-billing" },
+        { "id": "dist-e4", "source": "dist-trading", "target": "dist-billing" },
+        { "id": "dist-e5", "source": "dist-billing", "target": "dist-confirm" },
+        { "id": "dist-e6", "source": "dist-confirm", "target": "dist-end" }
+      ]
+    },
+    "maintenance": {
+      "nodes": [
+        {
+          "id": "maint-start",
+          "type": "event",
+          "label": "Change Request",
+          "icon": "edit",
+          "details": {
+            "description": "Change request received for client static data",
+            "requirements": ["Change request form", "Business justification"],
+            "effort": "N/A",
+            "owner": "Requestor"
+          }
+        },
+        {
+          "id": "maint-classify",
+          "type": "manual",
+          "label": "Classify Change",
+          "icon": "tag",
+          "details": {
+            "description": "Determine if change is material (requires approval) or non-material",
+            "requirements": ["Change classification matrix"],
+            "effort": "30 minutes",
+            "owner": "Data Steward"
+          }
+        },
+        {
+          "id": "maint-update",
+          "type": "manual",
+          "label": "Apply Update",
+          "icon": "save",
+          "details": {
+            "description": "Update client record in MDM system",
+            "requirements": ["Supporting documentation", "Approval if material"],
+            "effort": "1-2 hours",
+            "owner": "Data Steward"
+          }
+        },
+        {
+          "id": "maint-propagate",
+          "type": "automated",
+          "label": "Propagate Changes",
+          "icon": "share2",
+          "details": {
+            "description": "Automatically distribute updated data to downstream systems",
+            "requirements": ["System integration active"],
+            "effort": "Automated - 5 minutes",
+            "owner": "System"
+          }
+        },
+        {
+          "id": "maint-end",
+          "type": "event",
+          "label": "Update Complete",
+          "icon": "checkCircle",
+          "details": {
+            "description": "Client data update completed and distributed",
+            "requirements": [],
+            "effort": "N/A",
+            "owner": "N/A"
+          }
+        }
+      ],
+      "edges": [
+        { "id": "maint-e1", "source": "maint-start", "target": "maint-classify" },
+        { "id": "maint-e2", "source": "maint-classify", "target": "maint-update" },
+        { "id": "maint-e3", "source": "maint-update", "target": "maint-propagate" },
+        { "id": "maint-e4", "source": "maint-propagate", "target": "maint-end" }
+      ]
+    }
+  }
+}
